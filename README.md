@@ -102,14 +102,69 @@ Point it at a different career entirely just by rewriting those lines.
 
 ---
 
-## Run it on a schedule (optional)
+## Run it on autopilot (GitHub Actions) 🤖
 
-The pipeline is built to run unattended via GitHub Actions on a daily cron.
-In that setup you don't commit a `.env` file — you add the same keys as
-**repository secrets** (Settings → Secrets and variables → Actions), and the
-workflow passes them in as environment variables. The script reads from a
-local `.env` when present and falls back to real environment variables
-otherwise, so the same code works both locally and in CI.
+This is the real point of the tool: fork it, add your keys once, and get a job
+digest in your inbox every morning — no terminal, no local setup, no editing
+code. A scheduled workflow (`.github/workflows/job-hunter.yml`) runs it daily.
+
+**The golden rule:** your keys go into GitHub's encrypted **Secrets** box, never
+into a file. Follow that and there is nothing to leak.
+
+### One-time setup in your fork
+
+**1. Enable Actions.** A fork's scheduled workflows are off by default. Open the
+**Actions** tab and click the button to enable workflows. (Until you do this,
+nothing runs.)
+
+**2. Add your secrets.** Go to **Settings → Secrets and variables → Actions**,
+open the **Secrets** tab, and add:
+
+| Secret | Value |
+|--------|-------|
+| `ANTHROPIC_API_KEY` | Your Claude API key |
+| `GMAIL_ADDRESS` | The Gmail that sends the digest |
+| `GMAIL_APP_PASSWORD` | A 16-char [Gmail App Password](https://myaccount.google.com/apppasswords), spaces removed |
+| `RECIPIENT_EMAIL` | Where to send it (optional — defaults to `GMAIL_ADDRESS`) |
+
+**3. Add your search.** On the **Variables** tab (same page), add:
+
+| Variable | Value |
+|----------|-------|
+| `TARGET_ROLES` | e.g. `Business Analyst, Project Manager` |
+| `SEARCH_FOCUS` | a sentence describing what you want and what to avoid |
+
+Optional variables — `USER_NAME`, `SEARCH_LOCATION`, `BASED_IN`,
+`EXPERIENCE_YEARS`, `EDUCATION`, `CORE_STRENGTHS`, `BONUS_STACK`,
+`IMPACT_HIGHLIGHTS`, `MIN_MATCH_SCORE`, `JOBS_PER_QUERY`, `MODEL_ID` — all have
+sensible defaults, so set only the ones you care about.
+
+**4. Test it now.** On the **Actions** tab, open the workflow and click
+**Run workflow** to trigger it immediately instead of waiting for the schedule.
+Check your inbox.
+
+The run is scheduled for **06:00 UTC daily** (≈ 7am Irish summer time). Edit the
+`cron` line in the workflow file to change it.
+
+> **Gmail App Password, not your normal password.** Gmail blocks regular
+> account passwords for SMTP. You need an App Password, which requires 2-Step
+> Verification to be enabled on the account first.
+
+### Google Sheets (optional)
+
+De-duplication and run logging use a Google Sheet. To enable it, add a secret
+`GOOGLE_CREDENTIALS_JSON` (the full contents of your service-account key) and a
+variable `GOOGLE_SHEET_ID`. Leave both unset to run without Sheets — the script
+skips that layer cleanly. **Never commit the JSON file to the repo.**
+
+---
+
+## Run it locally instead (optional)
+
+Prefer to run it by hand? Copy `.env.example` to `.env`, fill in the same keys,
+and run `python job_hunter.py`. The script reads `.env` when present and falls
+back to environment variables otherwise, so the same code works locally and in
+CI. `.env` is git-ignored — **never commit it.**
 
 ---
 
