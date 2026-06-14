@@ -1,0 +1,8 @@
+# Core — required
+anthropic>=0.40.0          # Claude API client
+python-dotenv>=1.0.0       # loads your .env settings file
+
+# Google Sheets — only needed if you set GOOGLE_SHEET_ID (de-dup + run logs).
+# Safe to remove these two lines if you're running without Sheets.
+gspread>=6.0.0             # Google Sheets read/write
+google-auth>=2.30.0        # service-account auth for Sheets
